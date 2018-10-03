@@ -8,8 +8,9 @@ const rfs    = require('rotating-file-stream');
 const rimraf = require('rimraf');
 
 const temp_dir = './outputs';
+
 // clean out temp outputs directory
-rimraf.sync(temp_dir, () => console.log('deleted old temp outputs') );
+rimraf.sync(temp_dir,{} ,() => console.log('deleted old temp outputs') );
 
 // object of configurable constants to set defaults in the output
 const conf = {
