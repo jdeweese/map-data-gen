@@ -10,7 +10,7 @@ const rimraf = require('rimraf');
 const temp_dir = './outputs';
 
 // clean out temp outputs directory
-rimraf.sync(temp_dir,{} ,() => console.log('deleted old temp outputs') );
+rimraf.sync(temp_dir,{},()=>{console.log('deleted old temp outputs')} );
 
 // object of configurable constants to set defaults in the output
 const conf = {
@@ -20,8 +20,7 @@ const conf = {
     // order_year: "2018"
 }
 
-// clean up the temp outputs directory
-
+var id = 1; // global scope variable to track customer id
 
 // reads from source address file from openaddress.com and ouputs a csv file
 // of addresses in the format expected for the lab
@@ -34,6 +33,7 @@ function genSampleAddresses(inputfile, outputfile){
             trim: true, 
             skip_lines_with_error: true,
         });
+
 
     let transformer = transform((data)=>transformAddressCsv(data)); // calls function to transform the data
 
@@ -56,21 +56,19 @@ function genSampleAddresses(inputfile, outputfile){
 
 // creates the expected output format and substitutes in defaults from the defined constant
 function transformAddressCsv(data){
-    let stringOutput = null;
-    if (data.STREET == "" ) minimizedData = null// skip entries with blank addresses
-    else { // only copy lat, long and street address
-        let minimizedData = { 
+    let minimizedData = null;
+    if (data.STREET != "" ) // only create entries for lines including address
+        minimizedData = { // only copy lat, long and street address
             lat: data.LAT,
             lon: data.LON,
-            address: data.NUMBER +' '+ data.STREET,
+            // regex to take out extra spaces inside string
+            address: data.NUMBER +' '+ data.STREET.replace(/ +(?= )/g,''),
             city: conf.city_name,
             state: conf.state_code,
             zip: conf.zipcode,
+            cust_id: id++
         };
-        stringOutput = minimizedData;
-        //stringOutput = JSON.stringify(minimizedData);
-    }
-    return stringOutput
+    return minimizedData;
 }
 
 // runs a test for local file
